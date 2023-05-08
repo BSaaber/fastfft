@@ -60,7 +60,7 @@ cdef vector[complex[double]] fft(vector[complex[double]]& v):
     _fft(res)
     return res
 
-cdef long_fft(vector[complex[double]]& v):
+cdef _long_fft(vector[complex[double]]& v):
     cdef vector[complex[double]] res
     cdef complex[double] sum
     for i in range(v.size()):
@@ -72,6 +72,26 @@ cdef long_fft(vector[complex[double]]& v):
 
     for i in range(v.size()):
         v[i] = res[i]
+
+
+cdef _rows_columns_fft2(vector[vector[complex[double]]]& matrix):
+    for i in range(matrix.size()):
+        _fft(matrix[i])
+
+    cdef vector[vector[complex[double]]] matrix_transposed
+    cdef vector[complex[double]] v
+    for i in range(matrix[0].size()):
+        v.clear()
+        for j in range(matrix.size()):
+            v.push_back(matrix[j][i])
+        matrix_transposed.push_back(v)
+
+    for i in range(matrix_transposed.size()):
+        _fft(matrix_transposed[i])
+
+    for i in range(matrix_transposed.size()):
+        for j in range(matrix_transposed[0].size()):
+            matrix[j][i] = matrix_transposed[i][j]
 
 # cdef ifft(vector[complex[double]]& v):
 #     for i in range(v.size()):
@@ -125,9 +145,8 @@ cdef _fft2(vector[vector[complex[double]]]& matrix):
             else:
                 matrix[i][j] = even_matrix[i][j - matrix[0].size() // 2] - odd_matrix[i][j - matrix[0].size() // 2]
 
-    print_matrix(matrix)
 
-def fft2(matrix):
+def fft2(matrix, use_rows_columns = False):
     if len(matrix) == 0:
         return
     if len(matrix[0]) == 0:
@@ -149,7 +168,10 @@ def fft2(matrix):
         cpp_matrix.push_back(cpp_line)
 
     # do the trick
-    _fft2(cpp_matrix)
+    if use_rows_columns:
+        _rows_columns_fft2(cpp_matrix)
+    else:
+        _fft2(cpp_matrix)
 
     # convert back to python and return
     res = list()
