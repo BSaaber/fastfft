@@ -1,76 +1,106 @@
 # distutils: language=c++
+# distutils: define_macros=CYTHON_CCOMPLEX=0
 
 
 from libcpp.vector cimport vector
+from libcpp.complex cimport complex, polar, conj
 
-def primes(unsigned int nb_primes):
-    cdef int n, i
-    cdef vector[int] p
-    p.reserve(nb_primes)  # allocate memory for 'nb_primes' elements.
+cdef double PI = 3.141592653589793238462643383279
 
-    n = 2
-    while p.size() < nb_primes:  # size() for vectors is similar to len()
-        for i in p:
-            if n % i == 0:
-                break
-        else:
-            p.push_back(n)  # push_back is similar to append()
-        n += 1
+cdef print_vector(vector[complex[double]]& v):
+    print("==================")
+    for i in range(v.size()):
+        print(f'        {v[i]}')
+    print("==================")
 
-    # If possible, C values and C++ objects are automatically
-    # converted to Python objects at need.
-    return p  # so here, the vector will be copied into a Python list.
+# expecting amount to be 2 ** x
+cdef vector[complex[double]] slice_vector(vector[complex[double]]& v, int start, int step):
+    cdef vector[complex[double]] res
+    for i in range(start, v.size(), step):
+        res.push_back(v[i])
+    return res
+cdef _fft(vector[complex[double]]& v):
+    if v.size() <= 1:
+        return
+
+    cdef vector[complex[double]] even = slice_vector(v, 0, 2)
+    cdef vector[complex[double]] odd = slice_vector(v, 1, 2)
+    print_vector(even)
+    print_vector(odd)
+    _fft(even)
+    _fft(odd)
+    cdef complex[double] t
+    for i in range(v.size() // 2):
+        t = polar[double](1.0, -2 * PI * i / v.size()) * odd[i]
+        v[i] = even[i] + t
+        v[i + v.size() // 2] = even[i] - t
+
+cdef long_fft(vector[complex[double]]& v):
+    cdef vector[complex[double]] res
+    cdef complex[double] sum
+    for i in range(v.size()):
+        sum.real(0)
+        sum.imag(0)
+        for j in range(v.size()):
+            sum += v[j] * polar[double](1.0, -2 * PI * i * j / v.size())
+        res.push_back(sum)
+
+    for i in range(v.size()):
+        v[i] = res[i]
 
 
-# cdef extern from "Numeric" namespace "valarray":
-#     cdef cppclass valarray:
-#         pass
-#
-# cdef valarray[int] my_valarray
+cdef fft(vector[complex[double]]& v):
+    _fft(v)
 
-cdef extern from "<valarray>" namespace "std":
-    cdef cppclass valarray[T]:
-        valarray()
-        valarray(int)  # constructor: empty constructor
-        T& operator[](int)  # get/set element
+cdef ifft(vector[complex[double]]& v):
+    for i in range(v.size()):
+        v[i] = conj(v[i])
+    fft(v)
+    for i in range(v.size()):
+        v[i] = conj(v[i])
+        v[i] /= v.size()
 
-cdef extern from "<complex>" namespace "std":
-    cdef cppclass complex[T]:
-        complex() except +
-        complex(T&, T&) except +
-        T real()
-        T imag()
+cdef my_foo():
+    cdef vector[complex[double]] v
+    v.reserve(8)
+    cdef complex[double] myvar
+    for i in range(1, 9, 1):
+        myvar.real(i)
+        myvar.imag(0)
+        v.push_back(myvar)
 
-# cdef extern from "complex.h":
-#     pass
+    for i in range(v.size()):
+        print(v[i].real(), v[i].imag())
 
-def my_foo():
-    my_complex_ptr = new complex[double](5.0, 5.0)
-    try:
-        print(my_complex_ptr.real())
-    finally:
-        del my_complex_ptr
+    print("long way")
+    fft(v)
 
-    cdef valarray[complex] complex_v
+    print('------')
 
-    complex_v = valarray[complex](6)
+    for i in range(v.size()):
+        print(v[i].real(), v[i].imag())
 
-    print("ok")
+    # print('short way')
+    #
+    # cdef vector[complex[double]] vv
+    # for i in range(1, 9, 1):
+    #     myvar.real(i)
+    #     myvar.imag(0)
+    #     vv.push_back(myvar)
+    #
+    # for i in range(vv.size()):
+    #     print(vv[i].real(), vv[i].imag())
+    #
+    # print("long way")
+    # long_fft(vv)
 
-cdef valarray[int] v
-# cdef complex[double] my_complex
-# print(my_complex.real)
-
-# print(my_complex_ptr.real())
-#my_complex = new complex[double]()
-v = valarray[int](6)
-for i in range(5):
-    v[i] = 1
-
-print(v[1])
-#print(v)
+    # ifft(v)
+    #
+    # print('------')
+    #
+    # for i in range(v.size()):
+    #     print(v[i].real(), v[i].imag())
 
 my_foo()
 
 print("maxims fft module imported")
-#print(primes(25))
