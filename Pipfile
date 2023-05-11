@@ -7,6 +7,12 @@ name = "pypi"
 cython = "==0.29.*"
 
 [dev-packages]
+mypy = "*"
+autopep8 = "*"
+flake8 = "*"
+pytest = "*"
+bandit = "*"
+pydocstyle = "*"
 
 [requires]
 python_version = "3.11"
