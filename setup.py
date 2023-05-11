@@ -18,14 +18,15 @@ def read_pipenv_dependencies(fname):
 
 ext_modules = [
     Extension("maxim_fft",
-              sources=["main.pyx"],
+              sources=["src/main.pyx"],
               )
 ]
 
 setup(
     name="fastfft",
-    version="0.0.3",
-    packages=find_packages(),
+    version="0.0.dev0",
+    package_dir={'': 'src'},
+    packages=find_packages('src'),
     author="Maxim Movshin",
     description="Discrete Fourier transform implementation by the analog of the Cooley-Tukey algorithm.",
     long_description=long_description,
