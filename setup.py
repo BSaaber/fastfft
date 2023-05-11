@@ -24,9 +24,9 @@ ext_modules = [
 
 setup(
     name="fastfft",
-    version="0.0.2",
-    package_dir={'': 'src'},
-    packages=find_packages('src'),
+    setup_requires=["cython", "numpy"],
+    version="0.1.0",
+    packages=find_packages(),
     python_requires='>=3.8',
     author="Maxim Movshin",
     description="Discrete Fourier transform implementation by the analog of the Cooley-Tukey algorithm.",
