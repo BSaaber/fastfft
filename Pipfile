@@ -5,6 +5,7 @@ name = "pypi"
 
 [packages]
 cython = "==0.29.*"
+numpy = "*"
 
 [dev-packages]
 mypy = "*"

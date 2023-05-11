@@ -1,8 +1,8 @@
 from setuptools import find_packages, setup, Extension
 from Cython.Build import cythonize
-import numpy as np
 import os
 import json
+import numpy as np
 
 with open("README.md", 'r') as f:
     long_description = f.read()
@@ -24,15 +24,17 @@ ext_modules = [
 
 setup(
     name="fastfft",
-    version="0.0.dev0",
+    version="0.0.2",
     package_dir={'': 'src'},
     packages=find_packages('src'),
+    python_requires='>=3.8',
     author="Maxim Movshin",
     description="Discrete Fourier transform implementation by the analog of the Cooley-Tukey algorithm.",
     long_description=long_description,
     long_description_content_type='text/markdown',
     url="https://github.com/BSaaber/fastfft",
     ext_modules=cythonize(ext_modules),
+    include_dirs=np.get_include(),
     install_requires=[
         *read_pipenv_dependencies('Pipfile.lock'),
     ]
