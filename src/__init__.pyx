@@ -1,0 +1,1 @@
+print('hello world! it is __init__.pyx from maxim s fastfft module!')

@@ -18,14 +18,14 @@ def read_pipenv_dependencies(fname):
 
 ext_modules = [
     Extension("maxim_fft",
-              sources=["src/main.pyx"],
+              sources=["src/__init__.pyx"],
               )
 ]
 
 setup(
     name="fastfft",
     setup_requires=["cython", "numpy"],
-    version="0.1.0",
+    version="0.1.1",
     packages=find_packages(),
     python_requires='>=3.8',
     author="Maxim Movshin",
