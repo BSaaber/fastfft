@@ -15,7 +15,7 @@ install:
 	CYTHONIZE=1 pip install .
 
 install-from-source: dist
-	pip install dist/fastfft-0.1.8.tar.gz
+	pip install dist/fastfft-0.2.0.tar.gz
 
 clean:
 	$(RM) -r build dist src/*.egg-info

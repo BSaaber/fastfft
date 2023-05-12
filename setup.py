@@ -24,7 +24,7 @@ def no_cythonize(extensions, **_ignore):
 
 
 extensions = [
-    Extension("fastfft.main", ["src/fastfft/fft.pyx"]),
+    Extension("fastfft.fft", ["src/fastfft/fft.pyx"]),
 ]
 
 CYTHONIZE = bool(int(os.getenv("CYTHONIZE", 0))) and cythonize is not None

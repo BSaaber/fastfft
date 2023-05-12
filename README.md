@@ -1,3 +1,9 @@
-# Just a regular readme file
-
-This is package with fft algorithm implementation.
+# FASTFFT
+import
+```
+from fastfft.fft import fft2
+```
+use
+```
+fft([[1, 2], [3, 4]])
+```
