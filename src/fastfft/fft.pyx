@@ -14,7 +14,7 @@ cdef complex[double] MINUS_PI_2I = PI * I * (-2)
 cdef complex[double] PI_I = PI * I
 
 
-cdef void base2x2fft2(vector[vector[complex[double]]]& matrix):
+cdef void _base2x2fft2(vector[vector[complex[double]]]& matrix):
     matrix[0][0], matrix[0][1] = matrix[0][0] + matrix[0][1], matrix[0][0] - matrix[0][1]
     matrix[1][0], matrix[1][1] = matrix[1][0] + matrix[1][1], matrix[1][0] - matrix[1][1]
 
@@ -22,15 +22,15 @@ cdef void base2x2fft2(vector[vector[complex[double]]]& matrix):
     matrix[0][1], matrix[1][1] = matrix[0][1] + matrix[1][1], matrix[0][1] - matrix[1][1]
 
 
-cdef complex[double] W_MINUS_PI_2I(double n, double m):
+cdef complex[double] W(double n, double m):
     return exp[double](MINUS_PI_2I * m / n)
 
 
-cdef void fft2_square(vector[vector[complex[double]]]& matrix):
+cdef void _fft2_square(vector[vector[complex[double]]]& matrix):
     cdef int n = matrix.size()
     cdef half_n = n // 2
     if n == 2:
-        base2x2fft2(matrix)
+        _base2x2fft2(matrix)
         return
 
     cdef vector[vector[complex[double]]] matrix00, matrix01, matrix10, matrix11
@@ -61,10 +61,10 @@ cdef void fft2_square(vector[vector[complex[double]]]& matrix):
             matrix10.push_back(line0)
             matrix11.push_back(line1)
 
-    fft2_square(matrix00)
-    fft2_square(matrix01)
-    fft2_square(matrix10)
-    fft2_square(matrix11)
+    _fft2_square(matrix00)
+    _fft2_square(matrix01)
+    _fft2_square(matrix10)
+    _fft2_square(matrix11)
 
 
     cdef complex[double] v00, vW10, vW01, vW11
@@ -72,9 +72,9 @@ cdef void fft2_square(vector[vector[complex[double]]]& matrix):
     for i in range(half_n):
         for j in range(half_n):
             v00 = matrix00[i][j]
-            vW10 = matrix10[i][j] * W_MINUS_PI_2I(n, i)
-            vW01 = matrix10[i][j] * W_MINUS_PI_2I(n, j)
-            vW11 = matrix10[i][j] * W_MINUS_PI_2I(n, i + i)
+            vW10 = matrix10[i][j] * W(n, i)
+            vW01 = matrix10[i][j] * W(n, j)
+            vW11 = matrix10[i][j] * W(n, i + i)
 
             matrix[i][j] = v00 + vW10 + vW01 + vW11
             matrix[i + half_n][j] = v00 - vW10 + vW01 - vW11
@@ -82,10 +82,10 @@ cdef void fft2_square(vector[vector[complex[double]]]& matrix):
             matrix[i + half_n][j + half_n] = v00 - vW10 - vW01 + vW11
 
 
-def py_fft2_square(matrix):
+def fft2(matrix):
     cdef vector[vector[complex[double]]] cpp_matrix
     cpp_matrix.reserve(len(matrix))
     for line in matrix:
        cpp_matrix.push_back(line)
-    fft2_square(cpp_matrix)
+    _fft2_square(cpp_matrix)
     return cpp_matrix

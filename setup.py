@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 import os
-from setuptools import setup, find_packages, Extension
+from setuptools import setup, Extension
 
 try:
     from Cython.Build import cythonize
@@ -16,10 +16,7 @@ def no_cythonize(extensions, **_ignore):
         for sfile in extension.sources:
             path, ext = os.path.splitext(sfile)
             if ext in (".pyx", ".py"):
-                if extension.language == "c++":
-                    ext = ".cpp"
-                else:
-                    ext = ".c"
+                ext = ".cpp"
                 sfile = path + ext
             sources.append(sfile)
         extension.sources[:] = sources
@@ -27,7 +24,7 @@ def no_cythonize(extensions, **_ignore):
 
 
 extensions = [
-    Extension("fft2.main", ["src/fft2/main.pyx"]),
+    Extension("fastfft.main", ["src/fastfft/fft.pyx"]),
 ]
 
 CYTHONIZE = bool(int(os.getenv("CYTHONIZE", 0))) and cythonize is not None
@@ -49,6 +46,5 @@ setup(
     install_requires=install_requires,
     extras_require={
         "dev": dev_requires,
-        #"docs": ["sphinx", "sphinx-rtd-theme"]
     },
 )
