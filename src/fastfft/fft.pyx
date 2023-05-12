@@ -43,7 +43,9 @@ cdef void _fft2_square(vector[vector[complex[double]]]& matrix):
 
     cdef vector[complex[double]] line0
     cdef vector[complex[double]] line1
-    # todo - redo
+    line0.reserve(half_n)
+    line1.reserve(half_n)
+
     for i in range(half_n):
         line0.push_back(I)
         line1.push_back(I)
@@ -81,11 +83,53 @@ cdef void _fft2_square(vector[vector[complex[double]]]& matrix):
             matrix[i][j + half_n] = v00 + vW10 - vW01 - vW11
             matrix[i + half_n][j + half_n] = v00 - vW10 - vW01 + vW11
 
+def _validate(matrix):
+    if not isinstance(matrix, list):
+        raise RuntimeError('Input parameter is not a list')
+
+    if len(matrix) == 0:
+        raise RuntimeError('List is empty!')
+
+    for line in matrix:
+        if not isinstance(line, list):
+            raise RuntimeError('One of matrix lines is not actually a line')
+
+        for val in line:
+            if not isinstance(val, double) and not isinstance(val, complex):
+                raise RuntimeError('One of matrix element\'s type is invalid (allowed: double, complex)')
+
+    if len(matrix) != len(matrix[0]):
+        raise RuntimeError('Matrix width and height are not equal (not a square matrix)')
 
 def fft2(matrix):
+    _validate(matrix)
+
     cdef vector[vector[complex[double]]] cpp_matrix
     cpp_matrix.reserve(len(matrix))
     for line in matrix:
        cpp_matrix.push_back(line)
     _fft2_square(cpp_matrix)
+    return cpp_matrix
+
+
+def ifft2(matrix):
+    _validate(matrix)
+
+    cdef vector[vector[complex[double]]] cpp_matrix
+    cpp_matrix.reserve(len(matrix))
+    for line in matrix:
+       cpp_matrix.push_back(line)
+
+    for i in range(cpp_matrix.size()):
+        for j in range(cpp_matrix[0].size()):
+            cpp_matrix[i][j] = conj(cpp_matrix[i][j])
+
+    _fft2_square(cpp_matrix)
+
+    nn = cpp_matrix.size() * cpp_matrix[0].size()
+
+    for i in range(cpp_matrix.size()):
+        for j in range(cpp_matrix[0].size()):
+            cpp_matrix[i][j] = conj(cpp_matrix[i][j]) / nn
+
     return cpp_matrix

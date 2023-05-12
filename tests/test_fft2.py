@@ -1,5 +1,5 @@
 def test_the_answer():
-    from src.fastfft import py_fft2_square
-    py_fft2_square([[1, 2, 3, 4], [5, 6, 7, 8]])
+    from fastfft.fft import fft2
+    fft2([[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12], [13, 14, 15, 16]])
 
     assert 1 == 1
