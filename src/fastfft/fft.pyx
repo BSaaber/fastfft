@@ -75,8 +75,8 @@ cdef void _fft2_square(vector[vector[complex[double]]]& matrix):
         for j in range(half_n):
             v00 = matrix00[i][j]
             vW10 = matrix10[i][j] * W(n, i)
-            vW01 = matrix10[i][j] * W(n, j)
-            vW11 = matrix10[i][j] * W(n, i + i)
+            vW01 = matrix01[i][j] * W(n, j)
+            vW11 = matrix11[i][j] * W(n, i + j)
 
             matrix[i][j] = v00 + vW10 + vW01 + vW11
             matrix[i + half_n][j] = v00 - vW10 + vW01 - vW11
