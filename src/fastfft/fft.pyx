@@ -95,7 +95,7 @@ def _validate(matrix):
             raise RuntimeError('One of matrix lines is not actually a line')
 
         for val in line:
-            if not isinstance(val, double) and not isinstance(val, complex):
+            if not isinstance(val, float) and not isinstance(val, type(1j)):
                 raise RuntimeError('One of matrix element\'s type is invalid (allowed: double, complex)')
 
     if len(matrix) != len(matrix[0]):
